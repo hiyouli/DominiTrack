@@ -205,6 +205,132 @@ docker compose up --build
 
 * Django REST Framework API 根目录 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/api/ (替换为您的实际域名)
 
+### 🚀🚀 快速部署指南 (面向宝塔面板用户，通过 Docker)
+
+如果您是服务器新手，或习惯使用宝塔面板管理服务器，以下步骤将指导您快速通过 Docker 部署 DominiTrack。
+
+#### 前置条件
+
+* 一台云服务器（Linux 系统，如 CentOS/Ubuntu/Debian）。
+* 已安装 **宝塔面板 (BT-Panel)**。
+* 在宝塔面板的 **“软件商店”** 中，已安装 **“Docker 管理器”**。
+
+#### 部署步骤
+
+1.  **下载 DominiTrack 项目代码到服务器：**
+    a. 登录您的宝塔面板。
+    b. 在左侧菜单中选择 **“文件”**。
+    c. 导航到您希望存放项目的目录，例如 `/www/wwwroot/`。
+    d. 点击顶部导航的 **“远程下载”**。
+    e. 粘贴 DominiTrack 的 GitHub 仓库地址：`https://github.com/hiyouli/DominiTrack/archive/refs/heads/main.zip` (直接下载 master 分支的 zip 包)。
+    f. 下载完成后，在宝塔文件管理界面中找到 `DominiTrack-main.zip` 并 **解压**。
+    g. 将解压后的文件夹重命名为 `DominiTrack` (或者您喜欢的名称)。进入此目录。
+
+2.  **配置 `.env` 环境变量文件：**
+    a. 在宝塔文件管理中，进入您刚刚解压的 `DominiTrack` 目录。
+    b. 找到 `.env` 文件（如果不存在，请新建一个）。
+    c. **编辑该文件，替换 `SECRET_KEY` 为一个您自己生成的随机密钥**（可在本地命令行使用 `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"` 生成），并**保留**其他数据库配置信息。
+
+    ```env
+    # .env
+
+    # Django SECRET_KEY (请替换为您自己生成的安全密钥！)
+    SECRET_KEY=您的随机生成的密钥
+
+    # 数据库配置，保持不变
+    DB_NAME=dominitrack_db
+    DB_USER=dominitrack_user
+    DB_PASSWORD=dominitrack_password
+    DB_HOST=db
+    DB_PORT=5432
+
+    # Celery 配置
+    CELERY_BROKER_URL=redis://redis:6379/0
+    CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ```
+
+3.  **使用宝塔 Docker 管理器启动服务：**
+    a. 在宝塔面板左侧菜单选择 **“Docker”** -> **“Docker 管理器”**。
+    b. 点击 **“Compose 管理”** 标签页。
+    c. 点击右侧的 **“添加 Compose”**。
+    d. **项目名称：** 填写 `DominiTrack` (或您的项目目录名)。
+    e. **Compose YML文件路径：** 点击“选择”，导航到您刚才解压的 `DominiTrack` 目录，选择里面的 `docker-compose.yml` 文件。
+    f. **勾选 “开启”**。
+    g. 点击 **“提交”**。
+    h. 宝塔将开始拉取 Docker 镜像、构建项目并启动所有服务。这个过程可能需要几分钟甚至更长时间（取决于您的服务器网络）。您可以在 **“日志”** 选项卡中查看启动进度。
+
+4.  **初始化数据库 (首次部署重要！)：**
+    项目启动后，您需要对 Django 数据库进行初始化。
+    a. 在宝塔面板左侧菜单选择 **“Docker”** -> **“Docker 管理器”**。
+    b. 在 **“容器列表”** 中找到名为 `dominitrack_backend_1` (或类似 `项目名_backend_1`) 的容器。
+    c. 点击该容器右侧的 **“终端”** 按钮。
+    d. 在容器终端中，依次执行以下命令：
+        * **运行数据库迁移：**
+          ```bash
+          python manage.py migrate
+          ```
+        * **创建 Django 超级管理员账户：**
+          ```bash
+          python manage.py createsuperuser
+          ```
+          按照提示输入用户名、邮箱和密码。这是您将来登录后端管理后台的账号。
+
+5.  **配置 Nginx 反向代理 (通过域名访问)：**
+    为了通过域名访问您的 DominiTrack，您需要设置反向代理。
+    a. 确保您已经有一个域名解析到了您的服务器 IP 地址（例如 `dominitrack.yourdomain.com`）。
+    b. 在宝塔面板左侧菜单选择 **“网站”** -> **“添加站点”**。
+    c. **域名：** 填写您的前端域名（例如 `dominitrack.yourdomain.com`）。
+    d. **根目录：** 随意选择一个空目录，因为 Docker 容器会处理内容。
+    e. **PHP版本：** 选择“纯静态”或任意版本，不重要。
+    f. 点击 **“提交”**。
+    g. 站点创建成功后，点击该网站右侧的 **“设置”**。
+    h. 选择 **“反向代理”** 选项卡。
+    i. **启用反向代理。**
+    j. **代理名称：** `dominitrack_frontend_proxy`。
+    k. **目标URL：** `http://127.0.0.1:8080` (注意这里是 `127.0.0.1`，因为 Nginx 和 Docker 容器都在同一台服务器上)。
+    l. **发送域名：** `localhost`。
+    m. **勾选 “发送真实IP”**。
+    n. 点击 **“保存”**。
+
+    o. **配置后端 API 代理：**
+    再次点击刚才设置的网站（例如 `dominitrack.yourdomain.com`）右侧的 **“设置”**。
+    p. 选择 **“配置文件”** 选项卡。
+    q. 找到 `location /` 块的上方，添加一个新的 `location` 块用于代理 `/api/` 请求到后端：
+
+    ```nginx
+    # 在 location / { ... } 块的上方添加
+    location /api/ {
+        proxy_pass [http://127.0.0.1:8000](http://127.0.0.1:8000); # 代理到后端 Django 服务的端口
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    ```
+    r. 点击 **“保存”**。
+
+6.  **开启 Celery 后台任务（可选）：**
+    为了让 WHOIS 查询和提醒功能自动运行，您需要在服务器上单独启动 Celery Worker 和 Celery Beat。
+    这通常需要通过 SSH 连接到服务器，进入项目目录，然后运行：
+    ```bash
+    # 进入项目目录 (例如 /www/wwwroot/DominiTrack)
+    cd /www/wwwroot/DominiTrack
+
+    # (可选) 如果你还没有激活虚拟环境，或者想在宿主机运行
+    # source venv/bin/activate
+
+    # 启动 Celery Worker
+    # 注意: 你需要确保 celery 和 redis 已经安装在你的虚拟环境 (或宿主机) 中
+    # 或者通过 Docker Compose 启动 Celery 服务 (更推荐的做法，未来会完善 docker-compose.yml)
+    # python -m celery -A dominitrack_project worker -l info
+    
+    # 启动 Celery Beat (用于定时任务)
+    # python -m celery -A dominitrack_project beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    ```
+    **注意：** 目前提供的 `docker-compose.yml` 还没有包含 Celery Worker 和 Beat 服务。这将在未来完善。在 Docker Compose 中添加这两个服务后，它们会随 `docker compose up` 自动启动。
+
+---
+
 ## 📋 TODO & 未来计划
 我们对 DominiTrack 的未来充满了期待：
 
