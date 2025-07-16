@@ -188,61 +188,63 @@ DominiTrack 采用现代化的全栈技术架构，确保高性能、可扩展�
 
 在项目根目录下，运行：
 
+```bash
 docker compose up --build
+```
 
-此命令将构建 Docker 镜像，并启动 db (PostgreSQL), redis, backend (Django) 和 frontend (Vue.js) 服务。
+* 此命令将构建 Docker 镜像，并启动 db (PostgreSQL), redis, backend (Django) 和 frontend (Vue.js) 服务。
 
-第一次启动可能需要一些时间来下载基础镜像和安装依赖。
+* 第一次启动可能需要一些时间来下载基础镜像和安装依赖。
 
-访问应用
+#### 访问应用
 当所有服务成功启动后：
 
-前端应用 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/ (替换为您的实际域名)
+* 前端应用 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/ (替换为您的实际域名)
 
-后端管理后台 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/admin/ (替换为您的实际域名)
+* 后端管理后台 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/admin/ (替换为您的实际域名)
 
-Django REST Framework API 根目录 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/api/ (替换为您的实际域名)
+* Django REST Framework API 根目录 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/api/ (替换为您的实际域名)
 
-📋 TODO & 未来计划
+## 📋 TODO & 未来计划
 我们对 DominiTrack 的未来充满了期待：
 
-用户认证系统完善： 实现完整的用户注册、登录、密码找回流程。
+* 用户认证系统完善： 实现完整的用户注册、登录、密码找回流程。
 
-前端界面开发： 完成域名列表展示、添加/编辑域名表单、用户设置等核心页面。
+* 前端界面开发： 完成域名列表展示、添加/编辑域名表单、用户设置等核心页面。
 
-WHOIS 定时更新： 使用 Celery Beat 定时触发 WHOIS 查询，自动更新域名到期日期。
+* WHOIS 定时更新： 使用 Celery Beat 定时触发 WHOIS 查询，自动更新域名到期日期。
 
-多渠道提醒集成： 实现邮件、微信、Telegram 的自动化提醒功能。
+* 多渠道提醒集成： 实现邮件、微信、Telegram 的自动化提醒功能。
 
-国际化 (i18n)： 支持多语言。
+* 国际化 (i18n)： 支持多语言。
 
-SSL 证书监控： 跟踪 SSL 证书的到期日期并提供提醒。
+* SSL 证书监控： 跟踪 SSL 证书的到期日期并提供提醒。
 
-DNS 记录监控： 监测域名 DNS 记录的变更。
+* DNS 记录监控： 监测域名 DNS 记录的变更。
 
-Uptime 监控： 简单的网站可用性监测。
+* Uptime 监控： 简单的网站可用性监测。
 
-更强大的数据分析和报告。
+* 更强大的数据分析和报告。
 
-🤝 如何贡献
+## 🤝 如何贡献
 我们欢迎所有对域名管理感兴趣的开发者加入 DominiTrack 的开发！无论您是想提交 Bug 报告、提出功能建议，还是贡献代码，都非常感谢。
 
-Fork 仓库。
+1. Fork 仓库。
 
-创建您的功能分支 (git checkout -b feature/AmazingFeature)。
+2. 创建您的功能分支 (git checkout -b feature/AmazingFeature)。
 
-提交您的更改 (git commit -m 'feat: Add AmazingFeature')。
+3. 提交您的更改 (git commit -m 'feat: Add AmazingFeature')。
 
-推送到您的分支 (git push origin feature/AmazingFeature)。
+4. 推送到您的分支 (git push origin feature/AmazingFeature)。
 
-提交 Pull Request。
+5. 提交 Pull Request。
 
 请确保您的代码风格符合项目规范，并为新功能编写测试。
 
-📜 许可证
+## 📜 许可证
 本项目采用 MIT 许可证开源。详情请参阅 LICENSE 文件。
 
-📧 联系我们
+## 📧 联系我们
 如果您有任何问题或建议，欢迎通过 GitHub Issues 提出。
 
 感谢您对 DominiTrack 的支持！我们共同打造一个更便捷的域名管理世界！
