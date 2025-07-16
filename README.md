@@ -186,9 +186,8 @@ DominiTrack 采用现代化的全栈技术架构，确保高性能、可扩展�
 
 ### 启动项目
 
-在项目根目录 (`D:\DominiTrack`) 下，运行：
+在项目根目录下，运行：
 
-```bash
 docker compose up --build
 
 此命令将构建 Docker 镜像，并启动 db (PostgreSQL), redis, backend (Django) 和 frontend (Vue.js) 服务。
@@ -198,11 +197,11 @@ docker compose up --build
 访问应用
 当所有服务成功启动后：
 
-前端应用： 访问 http://localhost:8080/
+前端应用 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/ (替换为您的实际域名)
 
-后端管理后台： 访问 http://localhost:8000/admin/ (使用您创建的超级用户登录)
+后端管理后台 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/admin/ (替换为您的实际域名)
 
-Django REST Framework API 根目录： 访问 http://localhost:8000/api/
+Django REST Framework API 根目录 (通过 Nginx 代理访问)： http://dominitrack.yourdomain.com/api/ (替换为您的实际域名)
 
 📋 TODO & 未来计划
 我们对 DominiTrack 的未来充满了期待：
