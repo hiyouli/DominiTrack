@@ -1,0 +1,59 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine # 使用轻量级的 PostgreSQL 镜像
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # 数据持久化
+    environment:
+      POSTGRES_DB: dominitrack_db # 数据库名称
+      POSTGRES_USER: dominitrack_user # 数据库用户
+      POSTGRES_PASSWORD: dominitrack_password # 数据库密码
+    ports:
+      - "5432:5432" # 暴露数据库端口，方便本地工具连接（可选，但方便调试）
+    healthcheck: # 数据库健康检查，确保数据库启动后再启动其他服务
+      test: ["CMD-SHELL", "pg_isready -U dominitrack_user -d dominitrack_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine # 使用轻量级的 Redis 镜像
+    ports:
+      - "6379:6379" # 暴露 Redis 端口
+
+  backend:
+    build:
+      context: . # 指定 Dockerfile 所在目录为当前目录
+      dockerfile: ./dominitrack_project/Dockerfile # Django 后端 Dockerfile 路径
+    command: python manage.py runserver 0.0.0.0:8000 # 容器内部运行 Django
+    volumes:
+      - .:/app # 将当前项目目录挂载到容器的 /app 目录
+    ports:
+      - "8000:8000" # 暴露 Django 端口
+    env_file: # 从 .env 文件加载环境变量（稍后创建）
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy # 确保 db 服务健康后才启动 backend
+      redis:
+        condition: service_started # 确保 redis 服务启动后才启动 backend
+
+  frontend:
+    build:
+      context: ./frontend # 指定 Dockerfile 构建上下文为 frontend 文件夹
+      dockerfile: Dockerfile.dev # Dockerfile 路径，相对于 context
+    volumes:
+      - ./frontend:/app # 将 frontend 目录挂载到容器的 /app 目录
+      - /app/node_modules # 避免将宿主机的 node_modules 挂载进去，容器有自己的
+    ports:
+      - "8080:8080" # 暴露 Vue.js 开发服务器端口
+    depends_on:
+      - backend # 确保后端启动后才启动前端 (如果前端需要后端API)
+    environment:
+      VUE_APP_BACKEND_API_URL: http://localhost:8000/api/
+
+volumes:
+  postgres_data: # 定义一个数据卷用于持久化 PostgreSQL 数据
